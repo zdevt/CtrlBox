@@ -1,0 +1,11 @@
+﻿<?xml version="1.0"?>
+<ErrorCode name="ErrorCodeXML">
+    <ERROR>
+        <Id>0x10001</Id>
+        <Str>ERROR_TCPLINK_BUFFER_INIT</Str>
+    </ERROR>
+    <ERROR>
+        <Id>0x10002</Id>
+        <Str>ERROR_TCPLINK_SOCKET</Str>
+    </ERROR>
+</ErrorCode>

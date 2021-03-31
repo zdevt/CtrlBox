@@ -1,0 +1,49 @@
+#!/bin/sh
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin
+runlevel=S
+prevlevel=N
+umask 022
+export PATH runlevel prevlevel
+rm -f /etc/mtab
+
+SYS_MAC=00:0C:29:DA:68:15
+SYS_MASK=255.255.255.0
+SYS_IP=172.16.129.252
+SYS_GW=172.16.129.254
+
+/bin/mount -n -t proc none /proc
+/bin/mount -n -t sysfs sysfs /sys
+/bin/mount -t tmpfs mdev /dev
+#/bin/mount -t ramfs /dev/ram0 /ramdisk
+
+echo /sbin/mdev>/proc/sys/kernel/hotplug
+mdev -s
+mkdir /dev/pts
+mount -t devpts devpts /dev/pts -o mode=0622
+mkdir -p /var/lock
+
+/sbin/ifconfig lo 127.0.0.1
+ifconfig eth0 hw ether $SYS_MAC
+ifconfig eth0 $SYS_IP netmask $SYS_MASK up
+route add -net 224.0.0.0 netmask 224.0.0.0 dev eth0
+route add default gw $SYS_GW
+
+/usr/sbin/telnetd
+/usr/sbin/httpd -h /www
+/usr/sbin/inetd
+
+#modprobe FpgaMod
+#modprobe GpioMod 
+#modprobe Interrupt
+
+filecksum=`cat /app/cksum | cut -d ' ' -f1`
+hostcksum=`md5sum /app/MAINAPP | cut -d ' ' -f1`
+
+if [ "$filecksum" = "$hostcksum" ];
+then 
+  echo "md5sum ok"
+  /app/MAINAPP&
+else 
+  echo "md5sum error"
+fi
+

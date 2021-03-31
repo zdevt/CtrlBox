@@ -1,0 +1,76 @@
+# MK CONFIG
+
+VER ?= "1.0.6.2"
+export VER
+
+CUR_DIR  = $(shell pwd)
+DIR      = $(shell dirname $(LOCALCONFIG_FILE))
+PROJ_DIR = $(shell cd $(DIR); pwd)
+CUR_DIR := $(shell cd $(CUR_DIR); pwd)
+OBJ_DIR := $(PROJ_DIR)/Objs
+
+CROSS_COMPILER =$(PROJ_DIR)/../arm-2014.05/bin/arm-none-linux-gnueabi-
+#CROSS_COMPILER := 
+
+AS       = $(CROSS_COMPILER)as
+LD       = $(CROSS_COMPILER)ld
+CC       = @$(CROSS_COMPILER)gcc
+CPP      = @$(CROSS_COMPILER)g++
+AR       = $(CROSS_COMPILER)ar
+NM       = $(CROSS_COMPILER)nm
+STRIP    = $(CROSS_COMPILER)strip
+OBJDUMP  = $(CROSS_COMPILER)objdump
+RANLIB   = @$(CROSS_COMPILER)ranlib
+CP       = @cp -au
+RM       = @-rm -f
+
+HOST_VER  := $(shell uname -r)
+USER_INFO := $(shell who -m)
+AUTHOR    := $(word 1,$(USER_INFO))
+LOGINTIME := $(wordlist 3,4,$(USER_INFO))
+AUTHORIP  := $(patsubst (%),%,$(word 5,$(USER_INFO)))
+
+MK_TIME   := $(shell date +%Y-%m-%d_%H:%M:%S)
+
+DEF_FLAGS := -DMK_TIME_D=""\""$(MK_TIME)"\""" \
+						 -DAUTHOR_D=""\""$(AUTHOR)"\""" \
+						 -DAUTHORIP_D=""\""$(AUTHORIP)"\""" \
+						 -DLOGINTIME_D=""\""$(LOGINTIME)"\""" \
+						 -DVER_D=""\""$(VER)"\"""
+
+ALL_FILES := $(shell find $(PROJ_DIR) -maxdepth 5 -type f)
+INC_FILES := $(filter %.h,$(ALL_FILES))
+INC_DIRS  := $(dir $(INC_FILES))
+INC_DIRS  := $(sort $(INC_DIRS))
+
+INC_FLAGS := $(patsubst %,-I%, $(INC_DIRS))
+	
+LIB_FLAGS := -ldl -lrt -lpthread -lz -lpng -ljpeg -lgd
+
+CFLAGS    = -Wall -Werror -rdynamic
+#CPPFLAGS  = -Wall -std=c++11 -Werror -rdynamic -m32
+CPPFLAGS  = -Wall -std=c++11 -Werror -s
+#CPPFLAGS  = -Wall -std=c++11 -Werror -rdynamic -g
+
+CODE_FORMAT := --style=allman \
+			 				--indent=spaces=2 \
+			 				--indent-modifiers \
+							--indent-classes \
+			 				--indent-switches \
+			 				--indent-namespaces \
+			 				--indent-preproc-block \
+			 				--indent-preproc-define \
+			 				--indent-preproc-cond \
+			 				--indent-col1-comments \
+			 				--min-conditional-indent=2 \
+			 				--max-instatement-indent=40 \
+			 				--break-blocks \
+							--pad-oper \
+			 				--pad-paren \
+							--pad-paren-in \
+			 				--align-pointer=type \
+			 				--align-reference=type \
+			 				--suffix=none \
+			 				--formatted \
+	
+
